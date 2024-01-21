@@ -12,8 +12,10 @@ load_dotenv()
 
 st.set_page_config(layout="wide")
 
-st.sidebar.title("App Title Placeholder")
-st.sidebar.write("App description placeholder")
+st.title("App Title Placeholder")
+st.write("App description placeholder")
+st.sidebar.title("Sidebar Title Placeholder")
+st.sidebar.write("Sidebar description placeholder")
 
 ClarifaiStreamlitCSS.insert_default_css(st)
 

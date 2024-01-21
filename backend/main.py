@@ -1,17 +1,17 @@
-# from dotenv import load_dotenv
-# load_dotenv()
-# import time
-# use clarifai
 import base64
+import json
 import os.path
+import random
 import re
 from typing import Union, List
 
 from clarifai.client.input import Inputs
 from clarifai.client.model import Model
 from dotenv import load_dotenv
-#
+
 load_dotenv()
+
+
 def load_dotenv_backup():
     from pathlib import Path
     p = Path(".env")
@@ -20,6 +20,7 @@ def load_dotenv_backup():
     for k, v in env.items():
         if v:
             os.environ[k] = v
+
 
 def trim_extra_whitespace(text):
     # Replace multiple spaces with a single space
@@ -124,10 +125,6 @@ def ask_clarifai_vision(
 
     # - Ask clarifai
     load_dotenv_backup()
-    # os.environ["CLARIFAI_PAT"] = env["CLARIFAI_PAT"]
-    # print("listdir", os.listdir("."))
-    # print("CALMMAGE api key:", os.getenv("CLARIFAI_API_KEY"))
-    # print("CALMMAGE PAT:", os.getenv("CLARIFAI_PAT"))
     res = (
         Model("https://clarifai.com/openai/chat-completion/models/openai-gpt-4-vision")
         .predict(
@@ -292,7 +289,37 @@ def get_taxonomy(item_description,
                                         taxonomy_base=taxonomy_base)),
     ]
     taxonomy = ask_clarifai_text("basic", full_prompt_template)
+    taxonomy = format_taxonomy(taxonomy)
     return taxonomy
+
+
+def format_taxonomy(taxonomy):
+    taxonomy = taxonomy.replace("```json", "").replace("```", "")
+
+    try:
+        d = json.loads(taxonomy)
+
+        taxonomy_tag = None
+        for k in d.keys():
+            if k.lower().startswith("taxonomy"):
+                taxonomy_tag = k
+                break
+        if taxonomy_tag:
+            remainder_dict = {k: v for k, v in d.items() if k != taxonomy_tag}
+            expanded_taxonomy = d[taxonomy_tag]
+            d = {**remainder_dict, **expanded_taxonomy}
+        d = {k: v for k, v in d.items() if (v and v != "null")}
+        d = {k: v for k, v in d.items() if
+             (not k.lower().startswith("price") and k.lower() not in ["category"])}
+        if "price" not in [k.lower() for k in d.keys()]:
+            d["Price"] = random.choice(
+                ["$10", "$15", "$20", "$25", "$30", "$50", "$100"])
+            # Need variable fewshot templates to fix it properly, to painfull to fix it there.
+            # Ping me if you've found this in the net and are wondering how to do this properly
+        return json.dumps(d, indent=2)
+
+    except Exception as e:
+        return taxonomy
 
 
 def process_image(image_bytes):
@@ -313,25 +340,7 @@ def process_image(image_bytes):
 
     **Description**:\n {marketplace_description}
 
-    **Tags**:\n {taxonomy}     
+    **Tags**:\n ```\n{taxonomy}\n```     
     """
     display_text = trim_extra_whitespace(display_text)
     return display_text
-
-
-# def test():
-#     image_path = """../../resource/image_examples/avito_013.webp"""
-#     image_bytes = open(image_path, "rb").read()
-#     return process_image(image_bytes)
-
-
-# if __name__ == "__main__":
-#     print(test())
-
-
-# def process_image(image_base64) -> str:
-#     #  "https://www.clarifai.com/img/metro-north.jpg"
-#     # time.sleep(40)
-#     time.sleep(5)
-#     name = image_base64.name
-#     return f"This is a placeholder text for {name}"
