@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+
 load_dotenv()
 import os
 # from PIL import Image
@@ -9,8 +10,10 @@ from clarifai.modules.css import ClarifaiStreamlitCSS
 
 from backend.main import process_image
 
+st.set_page_config(layout="wide")
 
-# st.set_page_config(layout="wide")
+st.sidebar.title("App Title Placeholder")
+st.sidebar.write("App description placeholder")
 
 ClarifaiStreamlitCSS.insert_default_css(st)
 
@@ -26,6 +29,7 @@ image = st.sidebar.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
 
 # hack: save .env if it doesn't exist
 from pathlib import Path
+
 p = Path(".env")
 if not p.exists():
     msg = ""
