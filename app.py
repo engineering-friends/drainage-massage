@@ -12,10 +12,10 @@ load_dotenv()
 
 st.set_page_config(layout="wide")
 
-st.title("App Title Placeholder")
-st.write("App description placeholder")
-st.sidebar.title("Sidebar Title Placeholder")
-st.sidebar.write("Sidebar description placeholder")
+# st.title("Snap, List, Sell!")
+st.write("Our app instantly crafts the perfect listing for your item. Just upload a photo, and we'll generate a catchy title, engaging description, and tailored text for your marketplace sale. Selling made simple!")
+st.sidebar.title("Snap, List, Sell!")
+# st.sidebar.write("Sidebar description placeholder")
 
 ClarifaiStreamlitCSS.insert_default_css(st)
 
